@@ -1,0 +1,36 @@
+import 'package:ai_doc_scanner/features/scanner/domain/usecases/get_all_document.dart';
+import 'package:ai_doc_scanner/features/scanner/domain/usecases/search_document.dart';
+import 'package:get_it/get_it.dart';
+import '../database/app_database.dart';
+import '../services/categorization_service.dart';
+import '../../features/scanner/data/datasources/document_local_datasource.dart';
+import '../../features/scanner/data/repositories/document_repositories_impl.dart';
+import '../../features/scanner/domain/repositories/document_repository.dart';
+import '../../features/scanner/domain/usecases/delete_document.dart';
+
+final GetIt sl = GetIt.instance;
+
+Future<void> setupDependencies() async {
+  // Database
+  sl.registerLazySingleton<AppDatabase>(() => AppDatabase());
+
+  // Services
+  sl.registerLazySingleton<CategorizationService>(
+    () => CategorizationService(),
+  );
+
+  // Data sources
+  sl.registerLazySingleton<DocumentLocalDatasource>(
+    () => DocumentLocalDatasource(sl<AppDatabase>()),
+  );
+
+  // Repositories
+  sl.registerLazySingleton<DocumentRepository>(
+    () => DocumentRepositoriesImpl(sl<DocumentLocalDatasource>()),
+  );
+
+  // Use cases
+  sl.registerLazySingleton(() => GetAllDocument(sl<DocumentRepository>()));
+  sl.registerLazySingleton(() => SearchDocument(sl<DocumentRepository>()));
+  sl.registerLazySingleton(() => DeleteDocument(sl<DocumentRepository>()));
+}
