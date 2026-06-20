@@ -27,6 +27,6 @@ class CategorizationService {
   }
 
   bool _containsAny(String text, List<String> keywords) {
-    return keywords.any((k) => text.contains(k));
+    return keywords.any((k) => text.contains(k));  
   }
 }

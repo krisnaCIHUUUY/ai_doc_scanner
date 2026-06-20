@@ -1,3 +1,4 @@
+import 'package:ai_doc_scanner/features/scanner/data/datasources/scanner_services.dart';
 import 'package:ai_doc_scanner/features/scanner/domain/usecases/get_all_document.dart';
 import 'package:ai_doc_scanner/features/scanner/domain/usecases/search_document.dart';
 import 'package:get_it/get_it.dart';
@@ -7,6 +8,7 @@ import '../../features/scanner/data/datasources/document_local_datasource.dart';
 import '../../features/scanner/data/repositories/document_repositories_impl.dart';
 import '../../features/scanner/domain/repositories/document_repository.dart';
 import '../../features/scanner/domain/usecases/delete_document.dart';
+import '../../features/scanner/domain/usecases/scan_document_use_case.dart';
 
 final GetIt sl = GetIt.instance;
 
@@ -18,6 +20,7 @@ Future<void> setupDependencies() async {
   sl.registerLazySingleton<CategorizationService>(
     () => CategorizationService(),
   );
+  sl.registerLazySingleton<ScannerService>(() => ScannerService());
 
   // Data sources
   sl.registerLazySingleton<DocumentLocalDatasource>(
@@ -33,4 +36,11 @@ Future<void> setupDependencies() async {
   sl.registerLazySingleton(() => GetAllDocument(sl<DocumentRepository>()));
   sl.registerLazySingleton(() => SearchDocument(sl<DocumentRepository>()));
   sl.registerLazySingleton(() => DeleteDocument(sl<DocumentRepository>()));
+  sl.registerLazySingleton(
+    () => ScanDocumentUseCase(
+      scannerService: sl<ScannerService>(),
+      repository: sl<DocumentRepository>(),
+      categorizationService: sl<CategorizationService>(),
+    ),
+  );
 }
