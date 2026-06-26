@@ -6,6 +6,7 @@ class DocumentLocalDatasource {
   final AppDatabase db;
   DocumentLocalDatasource(this.db);
 
+
   Future<void> saveDocument(Document document) async {
     await db
         .into(db.scannedDocuments)

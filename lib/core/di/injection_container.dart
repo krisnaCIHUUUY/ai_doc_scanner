@@ -1,6 +1,7 @@
 import 'package:ai_doc_scanner/features/scanner/data/datasources/scanner_services.dart';
 import 'package:ai_doc_scanner/features/scanner/domain/usecases/get_all_document.dart';
 import 'package:ai_doc_scanner/features/scanner/domain/usecases/search_document.dart';
+import 'package:ai_doc_scanner/features/scanner/presentation/bloc/document_bloc.dart';
 import 'package:get_it/get_it.dart';
 import '../database/app_database.dart';
 import '../services/categorization_service.dart';
@@ -41,6 +42,14 @@ Future<void> setupDependencies() async {
       scannerService: sl<ScannerService>(),
       repository: sl<DocumentRepository>(),
       categorizationService: sl<CategorizationService>(),
+    ),
+  );
+  sl.registerFactory(
+    () => DocumentBloc(
+      sl<GetAllDocument>(),
+      sl<SearchDocument>(),
+      sl<DeleteDocument>(),
+      sl<ScanDocumentUseCase>(),
     ),
   );
 }
