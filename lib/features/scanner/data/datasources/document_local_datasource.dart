@@ -16,6 +16,7 @@ class DocumentLocalDatasource {
             category: document.category,
             ocrText: document.ocrText,
             imagePath: document.imagePath,
+            pdfPath: Value(document.pdfPath),
             createdAt: DateTime.now(),
           ),
         );
@@ -42,6 +43,7 @@ class DocumentLocalDatasource {
         category: row.read<String>('category'),
         ocrText: row.read<String>('ocr_text'),
         imagePath: row.read<String>('image_path'),
+        pdfPath: row.read<String>('pdf_path'),
         createdAt: DateTime.fromMillisecondsSinceEpoch(
           row.read<int>('created_at'),
         ),
@@ -68,6 +70,7 @@ class DocumentLocalDatasource {
     category: row.category,
     ocrText: row.ocrText,
     imagePath: row.imagePath,
+    pdfPath: row.pdfPath,
     createdAt: row.createdAt,
   );
 }

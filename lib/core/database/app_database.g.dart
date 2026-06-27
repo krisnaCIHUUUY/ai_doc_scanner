@@ -64,6 +64,18 @@ class $ScannedDocumentsTable extends ScannedDocuments
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _pdfPathMeta = const VerificationMeta(
+    'pdfPath',
+  );
+  @override
+  late final GeneratedColumn<String> pdfPath = GeneratedColumn<String>(
+    'pdf_path',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -82,6 +94,7 @@ class $ScannedDocumentsTable extends ScannedDocuments
     category,
     ocrText,
     imagePath,
+    pdfPath,
     createdAt,
   ];
   @override
@@ -131,6 +144,12 @@ class $ScannedDocumentsTable extends ScannedDocuments
     } else if (isInserting) {
       context.missing(_imagePathMeta);
     }
+    if (data.containsKey('pdf_path')) {
+      context.handle(
+        _pdfPathMeta,
+        pdfPath.isAcceptableOrUnknown(data['pdf_path']!, _pdfPathMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -168,6 +187,10 @@ class $ScannedDocumentsTable extends ScannedDocuments
         DriftSqlType.string,
         data['${effectivePrefix}image_path'],
       )!,
+      pdfPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pdf_path'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -187,6 +210,7 @@ class ScannedDocument extends DataClass implements Insertable<ScannedDocument> {
   final String category;
   final String ocrText;
   final String imagePath;
+  final String pdfPath;
   final DateTime createdAt;
   const ScannedDocument({
     required this.id,
@@ -194,6 +218,7 @@ class ScannedDocument extends DataClass implements Insertable<ScannedDocument> {
     required this.category,
     required this.ocrText,
     required this.imagePath,
+    required this.pdfPath,
     required this.createdAt,
   });
   @override
@@ -204,6 +229,7 @@ class ScannedDocument extends DataClass implements Insertable<ScannedDocument> {
     map['category'] = Variable<String>(category);
     map['ocr_text'] = Variable<String>(ocrText);
     map['image_path'] = Variable<String>(imagePath);
+    map['pdf_path'] = Variable<String>(pdfPath);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -215,6 +241,7 @@ class ScannedDocument extends DataClass implements Insertable<ScannedDocument> {
       category: Value(category),
       ocrText: Value(ocrText),
       imagePath: Value(imagePath),
+      pdfPath: Value(pdfPath),
       createdAt: Value(createdAt),
     );
   }
@@ -230,6 +257,7 @@ class ScannedDocument extends DataClass implements Insertable<ScannedDocument> {
       category: serializer.fromJson<String>(json['category']),
       ocrText: serializer.fromJson<String>(json['ocrText']),
       imagePath: serializer.fromJson<String>(json['imagePath']),
+      pdfPath: serializer.fromJson<String>(json['pdfPath']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -242,6 +270,7 @@ class ScannedDocument extends DataClass implements Insertable<ScannedDocument> {
       'category': serializer.toJson<String>(category),
       'ocrText': serializer.toJson<String>(ocrText),
       'imagePath': serializer.toJson<String>(imagePath),
+      'pdfPath': serializer.toJson<String>(pdfPath),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -252,6 +281,7 @@ class ScannedDocument extends DataClass implements Insertable<ScannedDocument> {
     String? category,
     String? ocrText,
     String? imagePath,
+    String? pdfPath,
     DateTime? createdAt,
   }) => ScannedDocument(
     id: id ?? this.id,
@@ -259,6 +289,7 @@ class ScannedDocument extends DataClass implements Insertable<ScannedDocument> {
     category: category ?? this.category,
     ocrText: ocrText ?? this.ocrText,
     imagePath: imagePath ?? this.imagePath,
+    pdfPath: pdfPath ?? this.pdfPath,
     createdAt: createdAt ?? this.createdAt,
   );
   ScannedDocument copyWithCompanion(ScannedDocumentsCompanion data) {
@@ -268,6 +299,7 @@ class ScannedDocument extends DataClass implements Insertable<ScannedDocument> {
       category: data.category.present ? data.category.value : this.category,
       ocrText: data.ocrText.present ? data.ocrText.value : this.ocrText,
       imagePath: data.imagePath.present ? data.imagePath.value : this.imagePath,
+      pdfPath: data.pdfPath.present ? data.pdfPath.value : this.pdfPath,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -280,6 +312,7 @@ class ScannedDocument extends DataClass implements Insertable<ScannedDocument> {
           ..write('category: $category, ')
           ..write('ocrText: $ocrText, ')
           ..write('imagePath: $imagePath, ')
+          ..write('pdfPath: $pdfPath, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -287,7 +320,7 @@ class ScannedDocument extends DataClass implements Insertable<ScannedDocument> {
 
   @override
   int get hashCode =>
-      Object.hash(id, title, category, ocrText, imagePath, createdAt);
+      Object.hash(id, title, category, ocrText, imagePath, pdfPath, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -297,6 +330,7 @@ class ScannedDocument extends DataClass implements Insertable<ScannedDocument> {
           other.category == this.category &&
           other.ocrText == this.ocrText &&
           other.imagePath == this.imagePath &&
+          other.pdfPath == this.pdfPath &&
           other.createdAt == this.createdAt);
 }
 
@@ -306,6 +340,7 @@ class ScannedDocumentsCompanion extends UpdateCompanion<ScannedDocument> {
   final Value<String> category;
   final Value<String> ocrText;
   final Value<String> imagePath;
+  final Value<String> pdfPath;
   final Value<DateTime> createdAt;
   const ScannedDocumentsCompanion({
     this.id = const Value.absent(),
@@ -313,6 +348,7 @@ class ScannedDocumentsCompanion extends UpdateCompanion<ScannedDocument> {
     this.category = const Value.absent(),
     this.ocrText = const Value.absent(),
     this.imagePath = const Value.absent(),
+    this.pdfPath = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   ScannedDocumentsCompanion.insert({
@@ -321,6 +357,7 @@ class ScannedDocumentsCompanion extends UpdateCompanion<ScannedDocument> {
     required String category,
     required String ocrText,
     required String imagePath,
+    this.pdfPath = const Value.absent(),
     required DateTime createdAt,
   }) : title = Value(title),
        category = Value(category),
@@ -333,6 +370,7 @@ class ScannedDocumentsCompanion extends UpdateCompanion<ScannedDocument> {
     Expression<String>? category,
     Expression<String>? ocrText,
     Expression<String>? imagePath,
+    Expression<String>? pdfPath,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -341,6 +379,7 @@ class ScannedDocumentsCompanion extends UpdateCompanion<ScannedDocument> {
       if (category != null) 'category': category,
       if (ocrText != null) 'ocr_text': ocrText,
       if (imagePath != null) 'image_path': imagePath,
+      if (pdfPath != null) 'pdf_path': pdfPath,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -351,6 +390,7 @@ class ScannedDocumentsCompanion extends UpdateCompanion<ScannedDocument> {
     Value<String>? category,
     Value<String>? ocrText,
     Value<String>? imagePath,
+    Value<String>? pdfPath,
     Value<DateTime>? createdAt,
   }) {
     return ScannedDocumentsCompanion(
@@ -359,6 +399,7 @@ class ScannedDocumentsCompanion extends UpdateCompanion<ScannedDocument> {
       category: category ?? this.category,
       ocrText: ocrText ?? this.ocrText,
       imagePath: imagePath ?? this.imagePath,
+      pdfPath: pdfPath ?? this.pdfPath,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -381,6 +422,9 @@ class ScannedDocumentsCompanion extends UpdateCompanion<ScannedDocument> {
     if (imagePath.present) {
       map['image_path'] = Variable<String>(imagePath.value);
     }
+    if (pdfPath.present) {
+      map['pdf_path'] = Variable<String>(pdfPath.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -395,6 +439,7 @@ class ScannedDocumentsCompanion extends UpdateCompanion<ScannedDocument> {
           ..write('category: $category, ')
           ..write('ocrText: $ocrText, ')
           ..write('imagePath: $imagePath, ')
+          ..write('pdfPath: $pdfPath, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -421,6 +466,7 @@ typedef $$ScannedDocumentsTableCreateCompanionBuilder =
       required String category,
       required String ocrText,
       required String imagePath,
+      Value<String> pdfPath,
       required DateTime createdAt,
     });
 typedef $$ScannedDocumentsTableUpdateCompanionBuilder =
@@ -430,6 +476,7 @@ typedef $$ScannedDocumentsTableUpdateCompanionBuilder =
       Value<String> category,
       Value<String> ocrText,
       Value<String> imagePath,
+      Value<String> pdfPath,
       Value<DateTime> createdAt,
     });
 
@@ -464,6 +511,11 @@ class $$ScannedDocumentsTableFilterComposer
 
   ColumnFilters<String> get imagePath => $composableBuilder(
     column: $table.imagePath,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pdfPath => $composableBuilder(
+    column: $table.pdfPath,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -507,6 +559,11 @@ class $$ScannedDocumentsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get pdfPath => $composableBuilder(
+    column: $table.pdfPath,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -536,6 +593,9 @@ class $$ScannedDocumentsTableAnnotationComposer
 
   GeneratedColumn<String> get imagePath =>
       $composableBuilder(column: $table.imagePath, builder: (column) => column);
+
+  GeneratedColumn<String> get pdfPath =>
+      $composableBuilder(column: $table.pdfPath, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -583,6 +643,7 @@ class $$ScannedDocumentsTableTableManager
                 Value<String> category = const Value.absent(),
                 Value<String> ocrText = const Value.absent(),
                 Value<String> imagePath = const Value.absent(),
+                Value<String> pdfPath = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => ScannedDocumentsCompanion(
                 id: id,
@@ -590,6 +651,7 @@ class $$ScannedDocumentsTableTableManager
                 category: category,
                 ocrText: ocrText,
                 imagePath: imagePath,
+                pdfPath: pdfPath,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -599,6 +661,7 @@ class $$ScannedDocumentsTableTableManager
                 required String category,
                 required String ocrText,
                 required String imagePath,
+                Value<String> pdfPath = const Value.absent(),
                 required DateTime createdAt,
               }) => ScannedDocumentsCompanion.insert(
                 id: id,
@@ -606,6 +669,7 @@ class $$ScannedDocumentsTableTableManager
                 category: category,
                 ocrText: ocrText,
                 imagePath: imagePath,
+                pdfPath: pdfPath,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0

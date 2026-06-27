@@ -9,6 +9,7 @@ class ScannedDocuments extends Table {
   TextColumn get category => text()();
   TextColumn get ocrText => text()();
   TextColumn get imagePath => text()();
+  TextColumn get pdfPath => text().withDefault(const Constant(''))();
   DateTimeColumn get createdAt => dateTime()();
 }
 
@@ -17,7 +18,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -26,6 +27,11 @@ class AppDatabase extends _$AppDatabase {
       await customStatement(
         'CREATE VIRTUAL TABLE IF NOT EXISTS documents_fts USING fts5(title, ocr_text, content=scanned_documents, content_rowid=id)',
       );
+    },
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.addColumn(scannedDocuments, scannedDocuments.pdfPath);
+      }
     },
   );
 }

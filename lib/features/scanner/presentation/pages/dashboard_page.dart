@@ -11,6 +11,7 @@ import '../../../../core/di/injection_container.dart';
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
+
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
@@ -33,7 +34,14 @@ class _DashboardViewState extends State<_DashboardView> {
   final _categories = ['Receipt', 'Invoice', 'ID Card', 'Academic'];
 
   @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final bloc = context.read<DocumentBloc>();
     return Scaffold(
       appBar: AppBar(title: const Text('AI Doc Scanner')),
       body: Column(
@@ -47,8 +55,7 @@ class _DashboardViewState extends State<_DashboardView> {
                 hintText: 'Search documents...',
                 prefixIcon: Icon(Icons.search),
               ),
-              onChanged: (q) =>
-                  context.read<DocumentBloc>().add(SearchDocuments(q)),
+              onChanged: (q) => bloc.add(SearchDocuments(q)),
             ),
           ),
           // Category filter chips
@@ -61,7 +68,7 @@ class _DashboardViewState extends State<_DashboardView> {
                   selected: _selectedCategory == null,
                   onSelected: (_) {
                     setState(() => _selectedCategory = null);
-                    context.read<DocumentBloc>().add(FilterByCategory(null));
+                    bloc.add(FilterByCategory(null));
                   },
                 ),
                 ..._categories.map(
@@ -70,7 +77,7 @@ class _DashboardViewState extends State<_DashboardView> {
                     selected: _selectedCategory == c,
                     onSelected: (_) {
                       setState(() => _selectedCategory = c);
-                      context.read<DocumentBloc>().add(FilterByCategory(c));
+                      bloc.add(FilterByCategory(c));
                     },
                   ),
                 ),
@@ -81,10 +88,12 @@ class _DashboardViewState extends State<_DashboardView> {
           Expanded(
             child: BlocBuilder<DocumentBloc, DocumentState>(
               builder: (context, state) {
-                if (state is DocumentLoading)
+                if (state is DocumentLoading) {
                   return const Center(child: CircularProgressIndicator());
-                if (state is DocumentListError)
+                }
+                if (state is DocumentListError) {
                   return Center(child: Text(state.message));
+                }
                 if (state is DocumentLoaded) {
                   return GridView.builder(
                     gridDelegate:
@@ -133,9 +142,11 @@ class _DashboardViewState extends State<_DashboardView> {
       ),
       // FAB triggers a new document scan
       floatingActionButton: FloatingActionButton(
-        onPressed: () => context.read<DocumentBloc>().add(ScanDocumentEvent()),
+        onPressed: () => bloc.add(ScanDocumentEvent()),
         child: const Icon(Icons.document_scanner),
       ),
     );
   }
+
+
 }

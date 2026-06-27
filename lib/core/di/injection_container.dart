@@ -1,7 +1,9 @@
+import 'package:ai_doc_scanner/core/services/image_filter_service.dart';
 import 'package:ai_doc_scanner/features/scanner/data/datasources/scanner_services.dart';
 import 'package:ai_doc_scanner/features/scanner/domain/usecases/get_all_document.dart';
 import 'package:ai_doc_scanner/features/scanner/domain/usecases/search_document.dart';
 import 'package:ai_doc_scanner/features/scanner/presentation/bloc/document_bloc.dart';
+import 'package:ai_doc_scanner/features/scanner/presentation/bloc/filter_bloc.dart';
 import 'package:get_it/get_it.dart';
 import '../database/app_database.dart';
 import '../services/categorization_service.dart';
@@ -21,6 +23,8 @@ Future<void> setupDependencies() async {
   sl.registerLazySingleton<CategorizationService>(
     () => CategorizationService(),
   );
+
+  sl.registerLazySingleton<ImageFilterService>(() => ImageFilterService());
   sl.registerLazySingleton<ScannerService>(() => ScannerService());
 
   // Data sources
@@ -44,6 +48,7 @@ Future<void> setupDependencies() async {
       categorizationService: sl<CategorizationService>(),
     ),
   );
+
   sl.registerFactory(
     () => DocumentBloc(
       sl<GetAllDocument>(),
@@ -51,5 +56,9 @@ Future<void> setupDependencies() async {
       sl<DeleteDocument>(),
       sl<ScanDocumentUseCase>(),
     ),
+  );
+
+  sl.registerFactory(
+    () => ImageFilterBloc(filterService: sl<ImageFilterService>()),
   );
 }

@@ -5,20 +5,21 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 // This service wraps ML Kit's document scanner and text recognizer into two clean methods your use case can call.
 
 class ScannerService {
-  // Launch the native document scanner UI and return captured image paths
-  Future<List<String>?> scan() async {
+  // Launch the native document scanner UI and return the full result.
+  // We request BOTH formats: the JPEG images are needed for OCR, while the PDF
+  // is the document we persist/export.
+  Future<DocumentScanningResult?> scan() async {
     final options = DocumentScannerOptions(
       pageLimit: 5,
       mode: ScannerMode.full,
       isGalleryImport: true,
-      documentFormats: {DocumentFormat.jpeg},
+      documentFormats: {DocumentFormat.jpeg, DocumentFormat.pdf},
     );
 
     final scanner = DocumentScanner(options: options);
 
     try {
-      final result = await scanner.scanDocument();
-      return result.images;
+      return await scanner.scanDocument();
     } catch (e) {
       return null;
     } finally {
